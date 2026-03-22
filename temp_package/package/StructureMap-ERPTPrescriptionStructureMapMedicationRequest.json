@@ -1,0 +1,804 @@
+{
+  "resourceType": "StructureMap",
+  "id": "ERPTPrescriptionStructureMapMedicationRequest",
+  "url": "https://gematik.de/fhir/erp-t-prescription/StructureMap/ERPTPrescriptionStructureMapMedicationRequest",
+  "title": "E-T-Rezept Structure Map for MedicationRequest",
+  "description": "Mapping-Anweisungen zur Transformation von KBV MedicationRequest zu BfArM T-Prescription MedicationRequest",
+  "structure": [
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription",
+      "mode": "source",
+      "alias": "kbvMedicationRequest"
+    },
+    {
+      "url": "https://gematik.de/fhir/erp-t-prescription/StructureDefinition/erp-tprescription-medication-request",
+      "mode": "target",
+      "alias": "bfarmMedicationRequest"
+    }
+  ],
+  "group": [
+    {
+      "input": [
+        {
+          "name": "kbvMedicationRequest",
+          "type": "kbvMedicationRequest",
+          "mode": "source"
+        },
+        {
+          "name": "bfarmMedicationRequest",
+          "type": "bfarmMedicationRequest",
+          "mode": "target"
+        }
+      ],
+      "rule": [
+        {
+          "source": [
+            {
+              "context": "kbvMedicationRequest",
+              "element": "status",
+              "variable": "srcStatus"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueString": "completed"
+                }
+              ],
+              "context": "bfarmMedicationRequest",
+              "contextType": "variable",
+              "element": "status",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationRequestStatus",
+          "documentation": "Setzt den Status auf 'completed' für den digitalen Durchschlag (Verschreibung ist bereits abgeschlossen)"
+        },
+        {
+          "source": [
+            {
+              "context": "kbvMedicationRequest",
+              "element": "intent"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueString": "order"
+                }
+              ],
+              "context": "bfarmMedicationRequest",
+              "contextType": "variable",
+              "element": "intent",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationRequestIntent",
+          "documentation": "Setzt den Intent auf 'order' entsprechend der BfArM-Spezifikation für T-Prescription"
+        },
+        {
+          "source": [
+            {
+              "context": "kbvMedicationRequest",
+              "element": "extension",
+              "variable": "extVar",
+              "condition": "url='https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Teratogenic'"
+            }
+          ],
+          "target": [
+            {
+              "contextType": "variable",
+              "context": "bfarmMedicationRequest",
+              "element": "extension",
+              "variable": "tgtExtVar"
+            }
+          ],
+          "rule": [
+            {
+              "source": [
+                {
+                  "context": "extVar",
+                  "variable": "extMatchVar"
+                }
+              ],
+              "target": [
+                {
+                  "parameter": [
+                    {
+                      "valueString": "https://gematik.de/fhir/epa-medication/StructureDefinition/teratogenic-extension"
+                    }
+                  ],
+                  "context": "tgtExtVar",
+                  "contextType": "variable",
+                  "element": "url",
+                  "transform": "copy"
+                }
+              ],
+              "name": "copyTPrescriptionExtensionUrl",
+              "documentation": "Kopiert teratogene Extensions für T-Rezept Kennzeichnung"
+            },
+            {
+              "source": [
+                {
+                  "context": "extVar",
+                  "element": "extension",
+                  "variable": "offLabelVar",
+                  "condition": "url='Off-Label'"
+                }
+              ],
+              "target": [
+                {
+                  "parameter": [
+                    {
+                      "valueString": "Extension"
+                    }
+                  ],
+                  "context": "tgtExtVar",
+                  "contextType": "variable",
+                  "element": "extension",
+                  "transform": "create",
+                  "variable": "tgtOffLabelExt"
+                },
+                {
+                  "parameter": [
+                    {
+                      "valueString": "off-label"
+                    }
+                  ],
+                  "context": "tgtOffLabelExt",
+                  "contextType": "variable",
+                  "element": "url",
+                  "transform": "copy"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "offLabelVar",
+                      "element": "value",
+                      "variable": "offLabelValue"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "parameter": [
+                        {
+                          "valueId": "offLabelValue"
+                        }
+                      ],
+                      "context": "tgtOffLabelExt",
+                      "contextType": "variable",
+                      "element": "value",
+                      "transform": "copy"
+                    }
+                  ],
+                  "name": "mapOffLabelValue",
+                  "documentation": "Übernimmt den Off-Label Booleschen Wert"
+                }
+              ],
+              "name": "mapOffLabelExtension",
+              "documentation": "Mappt Off-Label Extension"
+            },
+            {
+              "source": [
+                {
+                  "context": "extVar",
+                  "element": "extension",
+                  "variable": "gebaerfaehigeFrauVar",
+                  "condition": "url='GebaerfaehigeFrau'"
+                }
+              ],
+              "target": [
+                {
+                  "parameter": [
+                    {
+                      "valueString": "Extension"
+                    }
+                  ],
+                  "context": "tgtExtVar",
+                  "contextType": "variable",
+                  "element": "extension",
+                  "transform": "create",
+                  "variable": "tgtGebaerfaehigeFrauExt"
+                },
+                {
+                  "parameter": [
+                    {
+                      "valueString": "childbearing-potential"
+                    }
+                  ],
+                  "context": "tgtGebaerfaehigeFrauExt",
+                  "contextType": "variable",
+                  "element": "url",
+                  "transform": "copy"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "gebaerfaehigeFrauVar",
+                      "element": "value",
+                      "variable": "gebaerfaehigeFrauValue"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "parameter": [
+                        {
+                          "valueId": "gebaerfaehigeFrauValue"
+                        }
+                      ],
+                      "context": "tgtGebaerfaehigeFrauExt",
+                      "contextType": "variable",
+                      "element": "value",
+                      "transform": "copy"
+                    }
+                  ],
+                  "name": "mapGebaerfaehigeFrauValue",
+                  "documentation": "Übernimmt den Booleschen Wert für childbearing-potential"
+                }
+              ],
+              "name": "mapGebaerfaehigeFrauExtension",
+              "documentation": "Mappt GebaerfaehigeFrau Extension zu childbearing-potential"
+            },
+            {
+              "source": [
+                {
+                  "context": "extVar",
+                  "element": "extension",
+                  "variable": "sicherheitsVar",
+                  "condition": "url='EinhaltungSicherheitsmassnahmen'"
+                }
+              ],
+              "target": [
+                {
+                  "parameter": [
+                    {
+                      "valueString": "Extension"
+                    }
+                  ],
+                  "context": "tgtExtVar",
+                  "contextType": "variable",
+                  "element": "extension",
+                  "transform": "create",
+                  "variable": "tgtSicherheitsExt"
+                },
+                {
+                  "parameter": [
+                    {
+                      "valueString": "security-compliance"
+                    }
+                  ],
+                  "context": "tgtSicherheitsExt",
+                  "contextType": "variable",
+                  "element": "url",
+                  "transform": "copy"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "sicherheitsVar",
+                      "element": "value",
+                      "variable": "sicherheitsValue"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "parameter": [
+                        {
+                          "valueId": "sicherheitsValue"
+                        }
+                      ],
+                      "context": "tgtSicherheitsExt",
+                      "contextType": "variable",
+                      "element": "value",
+                      "transform": "copy"
+                    }
+                  ],
+                  "name": "mapEinhaltungSicherheitsmassnahmenValue",
+                  "documentation": "Übernimmt den Booleschen Wert für security-compliance"
+                }
+              ],
+              "name": "mapEinhaltungSicherheitsmassnahmenExtension",
+              "documentation": "Mappt EinhaltungSicherheitsmassnahmen Extension zu security-compliance"
+            },
+            {
+              "source": [
+                {
+                  "context": "extVar",
+                  "element": "extension",
+                  "variable": "infoMatVar",
+                  "condition": "url='AushaendigungInformationsmaterialien'"
+                }
+              ],
+              "target": [
+                {
+                  "parameter": [
+                    {
+                      "valueString": "Extension"
+                    }
+                  ],
+                  "context": "tgtExtVar",
+                  "contextType": "variable",
+                  "element": "extension",
+                  "transform": "create",
+                  "variable": "tgtInfoMatExt"
+                },
+                {
+                  "parameter": [
+                    {
+                      "valueString": "hand-out-information-material"
+                    }
+                  ],
+                  "context": "tgtInfoMatExt",
+                  "contextType": "variable",
+                  "element": "url",
+                  "transform": "copy"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "infoMatVar",
+                      "element": "value",
+                      "variable": "infoMatValue"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "parameter": [
+                        {
+                          "valueId": "infoMatValue"
+                        }
+                      ],
+                      "context": "tgtInfoMatExt",
+                      "contextType": "variable",
+                      "element": "value",
+                      "transform": "copy"
+                    }
+                  ],
+                  "name": "mapAushaendigungInformationsmaterialienValue",
+                  "documentation": "Übernimmt den Booleschen Wert für hand-out-information-material"
+                }
+              ],
+              "name": "mapAushaendigungInformationsmaterialienExtension",
+              "documentation": "Mappt AushaendigungInformationsmaterialien Extension zu hand-out-information-material"
+            },
+            {
+              "source": [
+                {
+                  "context": "extVar",
+                  "element": "extension",
+                  "variable": "sachkenntnisVar",
+                  "condition": "url='ErklaerungSachkenntnis'"
+                }
+              ],
+              "target": [
+                {
+                  "parameter": [
+                    {
+                      "valueString": "Extension"
+                    }
+                  ],
+                  "context": "tgtExtVar",
+                  "contextType": "variable",
+                  "element": "extension",
+                  "transform": "create",
+                  "variable": "tgtSachkenntnisExt"
+                },
+                {
+                  "parameter": [
+                    {
+                      "valueString": "declaration-of-expertise"
+                    }
+                  ],
+                  "context": "tgtSachkenntnisExt",
+                  "contextType": "variable",
+                  "element": "url",
+                  "transform": "copy"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "sachkenntnisVar",
+                      "element": "value",
+                      "variable": "sachkenntnisValue"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "parameter": [
+                        {
+                          "valueId": "sachkenntnisValue"
+                        }
+                      ],
+                      "context": "tgtSachkenntnisExt",
+                      "contextType": "variable",
+                      "element": "value",
+                      "transform": "copy"
+                    }
+                  ],
+                  "name": "mapErklaerungSachkenntnisValue",
+                  "documentation": "Übernimmt den Booleschen Wert für declaration-of-expertise"
+                }
+              ],
+              "name": "mapErklaerungSachkenntnisExtension",
+              "documentation": "Mappt ErklaerungSachkenntnis Extension zu declaration-of-expertise"
+            }
+          ],
+          "name": "medicationRequestExt",
+          "documentation": "Mappt T-Rezept spezifische Extensions vom KBV- zum BfArM-Format"
+        },
+        {
+          "source": [
+            {
+              "context": "kbvMedicationRequest",
+              "element": "extension",
+              "variable": "extDosageMetaVar",
+              "condition": "url='http://ig.fhir.de/igs/medication/StructureDefinition/GeneratedDosageInstructionsMeta'"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueId": "extDosageMetaVar"
+                }
+              ],
+              "context": "bfarmMedicationRequest",
+              "contextType": "variable",
+              "element": "extension",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationRequestExt",
+          "documentation": "Kopiert Dosage Metadata Extension"
+        },
+        {
+          "source": [
+            {
+              "context": "kbvMedicationRequest",
+              "element": "extension",
+              "variable": "extDosageRenderedVar",
+              "condition": "url='http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.renderedDosageInstruction'"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueId": "extDosageRenderedVar"
+                }
+              ],
+              "context": "bfarmMedicationRequest",
+              "contextType": "variable",
+              "element": "extension",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationRequestExt",
+          "documentation": "Kopiert RenderedDosageText"
+        },
+        {
+          "source": [
+            {
+              "context": "kbvMedicationRequest",
+              "element": "subject",
+              "variable": "srcSubject"
+            }
+          ],
+          "target": [
+            {
+              "contextType": "variable",
+              "context": "bfarmMedicationRequest",
+              "element": "subject",
+              "variable": "tgtSubject"
+            }
+          ],
+          "rule": [
+            {
+              "source": [
+                {
+                  "context": "kbvMedicationRequest",
+                  "element": "subject",
+                  "variable": "srcSubject"
+                }
+              ],
+              "target": [
+                {
+                  "contextType": "variable",
+                  "context": "tgtSubject",
+                  "element": "identifier",
+                  "variable": "tgtSubjectIdentifier"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "kbvMedicationRequest",
+                      "element": "subject",
+                      "variable": "srcSubject"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "contextType": "variable",
+                      "context": "tgtSubjectIdentifier",
+                      "element": "system",
+                      "variable": "tgtSubjectIdentifierSystem"
+                    },
+                    {
+                      "contextType": "variable",
+                      "context": "tgtSubjectIdentifier",
+                      "element": "value",
+                      "variable": "tgtSubjectIdentifierValue"
+                    }
+                  ],
+                  "rule": [
+                    {
+                      "source": [
+                        {
+                          "context": "kbvMedicationRequest",
+                          "element": "subject",
+                          "variable": "srcSubject"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "contextType": "variable",
+                          "context": "tgtSubjectIdentifierSystem",
+                          "element": "extension",
+                          "variable": "tgtSubjectIdentifierSystemEx"
+                        },
+                        {
+                          "contextType": "variable",
+                          "context": "tgtSubjectIdentifierValue",
+                          "element": "extension",
+                          "variable": "tgtSubjectIdentifierValueEx"
+                        }
+                      ],
+                      "rule": [
+                        {
+                          "source": [
+                            {
+                              "context": "kbvMedicationRequest",
+                              "element": "subject",
+                              "variable": "srcSubject"
+                            }
+                          ],
+                          "target": [
+                            {
+                              "parameter": [
+                                {
+                                  "valueString": "http://hl7.org/fhir/StructureDefinition/data-absent-reason"
+                                }
+                              ],
+                              "context": "tgtSubjectIdentifierSystemEx",
+                              "contextType": "variable",
+                              "element": "url",
+                              "transform": "copy"
+                            },
+                            {
+                              "parameter": [
+                                {
+                                  "valueString": "not-permitted"
+                                },
+                                {
+                                  "valueString": "code"
+                                }
+                              ],
+                              "context": "tgtSubjectIdentifierSystemEx",
+                              "contextType": "variable",
+                              "element": "value",
+                              "transform": "cast"
+                            }
+                          ],
+                          "name": "medicationRequestsubjectIdentifierSystemExtension",
+                          "documentation": "Setzt data-absent-reason auf 'not-permitted' um Patientendaten zu anonymisieren"
+                        },
+                        {
+                          "source": [
+                            {
+                              "context": "kbvMedicationRequest",
+                              "element": "subject",
+                              "variable": "srcSubject"
+                            }
+                          ],
+                          "target": [
+                            {
+                              "parameter": [
+                                {
+                                  "valueString": "http://hl7.org/fhir/StructureDefinition/data-absent-reason"
+                                }
+                              ],
+                              "context": "tgtSubjectIdentifierValueEx",
+                              "contextType": "variable",
+                              "element": "url",
+                              "transform": "copy"
+                            },
+                            {
+                              "parameter": [
+                                {
+                                  "valueString": "not-permitted"
+                                },
+                                {
+                                  "valueString": "code"
+                                }
+                              ],
+                              "context": "tgtSubjectIdentifierValueEx",
+                              "contextType": "variable",
+                              "element": "value",
+                              "transform": "cast"
+                            }
+                          ],
+                          "name": "medicationRequestsubjectIdentifierValueExtension",
+                          "documentation": "Setzt data-absent-reason auf 'not-permitted' um Patientendaten zu anonymisieren"
+                        }
+                      ],
+                      "name": "medicationRequestsubjectIdentifierSystem",
+                      "documentation": "Erstellt data-absent-reason Extension für Subject Identifier"
+                    }
+                  ],
+                  "name": "medicationRequestsubjectIdentifierExtension",
+                  "documentation": "Erstellt data-absent-reason Extension für Subject Identifier"
+                }
+              ],
+              "name": "medicationRequestsubjectIdentifier"
+            }
+          ],
+          "name": "medicationRequestsubject",
+          "documentation": "Entfernt Patientenbezug durch data-absent-reason Extension für Datenschutz im digitalen Durchschlag"
+        },
+        {
+          "source": [
+            {
+              "context": "kbvMedicationRequest",
+              "element": "authoredOn",
+              "variable": "srcAuthoredOnVar"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueId": "srcAuthoredOnVar"
+                }
+              ],
+              "context": "bfarmMedicationRequest",
+              "contextType": "variable",
+              "element": "authoredOn",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationRequestAuthoredOn",
+          "documentation": "Übernimmt das Verschreibungsdatum unverändert vom KBV MedicationRequest"
+        },
+        {
+          "source": [
+            {
+              "context": "kbvMedicationRequest",
+              "element": "dosageInstruction",
+              "variable": "srcDosageInstructionVar"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueId": "srcDosageInstructionVar"
+                }
+              ],
+              "context": "bfarmMedicationRequest",
+              "contextType": "variable",
+              "element": "dosageInstruction",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationRequestDosageInstruction",
+          "documentation": "Kopiert die Dosierungsanweisungen vollständig für den digitalen Durchschlag"
+        },
+        {
+          "source": [
+            {
+              "context": "kbvMedicationRequest",
+              "element": "dispenseRequest",
+              "variable": "srcDispenseRequestVar"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueId": "srcDispenseRequestVar"
+                }
+              ],
+              "context": "bfarmMedicationRequest",
+              "contextType": "variable",
+              "element": "dispenseRequest",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationRequestDispenseRequest",
+          "documentation": "Übernimmt Abgabeanweisungen (Menge, Wiederholungen) aus der ursprünglichen Verschreibung"
+        },
+        {
+          "source": [
+            {
+              "context": "kbvMedicationRequest",
+              "element": "medicationReference",
+              "variable": "medicationVar"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueString": "Reference"
+                }
+              ],
+              "context": "bfarmMedicationRequest",
+              "contextType": "variable",
+              "element": "medication",
+              "transform": "create",
+              "variable": "tgtMedicationReference"
+            }
+          ],
+          "rule": [
+            {
+              "source": [
+                {
+                  "context": "medicationVar",
+                  "element": "reference",
+                  "variable": "medicationReferenceValue"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "medicationReferenceValue"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "parameter": [
+                        {
+                          "valueString": "iif(%medicationReferenceValue.startsWith('urn:uuid:'), %medicationReferenceValue, 'urn:uuid:' & %medicationReferenceValue.replaceMatches('.*[:/]', ''))"
+                        }
+                      ],
+                      "context": "tgtMedicationReference",
+                      "contextType": "variable",
+                      "element": "reference",
+                      "transform": "evaluate"
+                    }
+                  ],
+                  "name": "normalizeMedicationReferenceTransformation"
+                }
+              ],
+              "name": "normalizeMedicationReference"
+            }
+          ],
+          "name": "medicationReference"
+        }
+      ],
+      "name": "ERPTPrescriptionStructureMapMedicationRequest",
+      "typeMode": "none",
+      "documentation": "Mapping-Anweisungen zur Transformation von KBV MedicationRequest zu BfArM T-Prescription MedicationRequest"
+    }
+  ],
+  "status": "active",
+  "version": "1.1.0",
+  "date": "2025-12-19",
+  "name": "ERPTPrescriptionStructureMapMedicationRequest",
+  "experimental": false
+}

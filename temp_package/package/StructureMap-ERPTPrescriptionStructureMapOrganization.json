@@ -1,0 +1,267 @@
+{
+  "resourceType": "StructureMap",
+  "id": "ERPTPrescriptionStructureMapOrganization",
+  "url": "https://gematik.de/fhir/erp-t-prescription/StructureMap/ERPTPrescriptionStructureMapOrganization",
+  "title": "E-T-Rezept Structure Map for Organization",
+  "description": "Mapping-Anweisungen zur Erstellung einer BfArM Organization aus dem VZD SearchSet",
+  "structure": [
+    {
+      "url": "https://gematik.de/fhir/erp-t-prescription/StructureDefinition/erp-tprescription-vzd-searchset",
+      "mode": "source",
+      "alias": "vzdSearchSet"
+    },
+    {
+      "url": "https://gematik.de/fhir/erp-t-prescription/StructureDefinition/erp-tprescription-organization",
+      "mode": "target",
+      "alias": "bfarmOrganization"
+    }
+  ],
+  "group": [
+    {
+      "input": [
+        {
+          "name": "vzdSearchSet",
+          "type": "vzdSearchSet",
+          "mode": "source"
+        },
+        {
+          "name": "bfarmOrganization",
+          "type": "bfarmOrganization",
+          "mode": "target"
+        }
+      ],
+      "rule": [
+        {
+          "source": [
+            {
+              "context": "vzdSearchSet",
+              "element": "entry",
+              "variable": "srcEntryOrgVar"
+            }
+          ],
+          "rule": [
+            {
+              "source": [
+                {
+                  "context": "srcEntryOrgVar",
+                  "element": "resource",
+                  "variable": "srcEntryOrganizationVar",
+                  "condition": "ofType(Organization)"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "srcEntryOrganizationVar",
+                      "element": "name",
+                      "variable": "srcOrgNameVar"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "parameter": [
+                        {
+                          "valueId": "srcOrgNameVar"
+                        }
+                      ],
+                      "context": "bfarmOrganization",
+                      "contextType": "variable",
+                      "element": "name",
+                      "transform": "copy"
+                    }
+                  ],
+                  "name": "name",
+                  "documentation": "Übernimmt den Namen der Organisation aus dem VZD in die BfArM Organization"
+                },
+                {
+                  "source": [
+                    {
+                      "context": "srcEntryOrganizationVar",
+                      "element": "identifier",
+                      "variable": "srcOrgIdentifierVar",
+                      "condition": "$this.system='https://gematik.de/fhir/sid/telematik-id'"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "contextType": "variable",
+                      "context": "bfarmOrganization",
+                      "element": "identifier",
+                      "variable": "bfarmOrganizationIdentifierVar"
+                    }
+                  ],
+                  "rule": [
+                    {
+                      "source": [
+                        {
+                          "context": "srcOrgIdentifierVar",
+                          "element": "value",
+                          "variable": "srcOrgIdentifierValueVar",
+                          "logMessage": "tgtTidIdentifier"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "parameter": [
+                            {
+                              "valueString": "https://gematik.de/fhir/sid/telematik-id"
+                            }
+                          ],
+                          "context": "bfarmOrganizationIdentifierVar",
+                          "contextType": "variable",
+                          "element": "system",
+                          "transform": "copy"
+                        },
+                        {
+                          "parameter": [
+                            {
+                              "valueId": "srcOrgIdentifierValueVar"
+                            }
+                          ],
+                          "context": "bfarmOrganizationIdentifierVar",
+                          "contextType": "variable",
+                          "element": "value",
+                          "transform": "copy"
+                        },
+                        {
+                          "parameter": [
+                            {
+                              "valueId": "srcOrgIdentifierValueVar"
+                            }
+                          ],
+                          "context": "bfarmOrganization",
+                          "contextType": "variable",
+                          "element": "id",
+                          "transform": "copy"
+                        }
+                      ],
+                      "name": "tidValue",
+                      "documentation": "Kopiert die Telematik-ID mit korrektem System-Identifier in die Ziel-Organisation"
+                    }
+                  ],
+                  "name": "tid",
+                  "documentation": "Mappt die Telematik-ID der Organisation"
+                }
+              ],
+              "name": "entry",
+              "documentation": "Verarbeitet jeden Eintrag im SearchSet"
+            }
+          ],
+          "name": "mapOrganization",
+          "documentation": "Mappt Organization-Einträge aus dem VZD SearchSet"
+        },
+        {
+          "source": [
+            {
+              "context": "vzdSearchSet",
+              "element": "entry",
+              "variable": "srcEntryHCSVar"
+            }
+          ],
+          "rule": [
+            {
+              "source": [
+                {
+                  "context": "srcEntryHCSVar",
+                  "element": "resource",
+                  "variable": "srcEntryHealthcareServiceVar",
+                  "condition": "ofType(HealthcareService)"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "srcEntryHealthcareServiceVar",
+                      "element": "telecom",
+                      "variable": "srcHcsTelecomVar"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "parameter": [
+                        {
+                          "valueId": "srcHcsTelecomVar"
+                        }
+                      ],
+                      "context": "bfarmOrganization",
+                      "contextType": "variable",
+                      "element": "telecom",
+                      "transform": "copy"
+                    }
+                  ],
+                  "name": "telecom",
+                  "documentation": "Übernimmt Kontaktinformationen (Telefon, E-Mail) aus dem HealthcareService in die Organisation"
+                }
+              ],
+              "name": "entry",
+              "documentation": "Verarbeitet HealthcareService-Einträge aus dem SearchSet"
+            }
+          ],
+          "name": "mapHealthcareService",
+          "documentation": "Mappt HealthcareService-Informationen für Kontaktdaten"
+        },
+        {
+          "source": [
+            {
+              "context": "vzdSearchSet",
+              "element": "entry",
+              "variable": "srcEntryHCSVar"
+            }
+          ],
+          "rule": [
+            {
+              "source": [
+                {
+                  "context": "srcEntryHCSVar",
+                  "element": "resource",
+                  "variable": "srcEntryLocationVar",
+                  "condition": "ofType(Location)"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "srcEntryLocationVar",
+                      "element": "address",
+                      "variable": "srcLocationAddressVar"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "parameter": [
+                        {
+                          "valueId": "srcLocationAddressVar"
+                        }
+                      ],
+                      "context": "bfarmOrganization",
+                      "contextType": "variable",
+                      "element": "address",
+                      "transform": "copy"
+                    }
+                  ],
+                  "name": "address",
+                  "documentation": "Übernimmt die Adressinformationen aus der Location in die Organisation"
+                }
+              ],
+              "name": "entry",
+              "documentation": "Verarbeitet Location-Einträge aus dem SearchSet"
+            }
+          ],
+          "name": "mapLocation",
+          "documentation": "Mappt Location-Informationen für Adressdaten"
+        }
+      ],
+      "name": "ERPTPrescriptionStructureMapOrganization",
+      "typeMode": "none",
+      "documentation": "Mapping-Anweisungen zur Erstellung einer BfArM Organization aus dem VZD SearchSet"
+    }
+  ],
+  "status": "active",
+  "version": "1.1.0",
+  "date": "2025-12-19",
+  "name": "ERPTPrescriptionStructureMapOrganization",
+  "experimental": false
+}

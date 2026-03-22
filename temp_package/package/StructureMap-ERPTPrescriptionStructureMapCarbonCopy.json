@@ -1,0 +1,703 @@
+{
+  "resourceType": "StructureMap",
+  "id": "ERPTPrescriptionStructureMapCarbonCopy",
+  "url": "https://gematik.de/fhir/erp-t-prescription/StructureMap/ERPTPrescriptionStructureMapCarbonCopy",
+  "title": "E-T-Rezept Structure Map for CarbonCopy",
+  "description": "Diese Ressource beschreibt das Mapping und führt die Mappings aller Teilressourcen zusammen. Weitere Informationen und Beschreibungen zum Mapping können auf der Seite [Mapping des digitalen Durchschlag E-T-Rezept](./trezept.html#mapping-des-digitalen-durchschlags-e-t-rezept) eingesehen werden.",
+  "import": [
+    "https://gematik.de/fhir/erp-t-prescription/StructureMap/ERPTPrescriptionStructureMapMedicationDispense",
+    "https://gematik.de/fhir/erp-t-prescription/StructureMap/ERPTPrescriptionStructureMapMedicationRequest",
+    "https://gematik.de/fhir/erp-t-prescription/StructureMap/ERPTPrescriptionStructureMapOrganization",
+    "https://gematik.de/fhir/erp-t-prescription/StructureMap/ERPTPrescriptionStructureMapTask",
+    "https://gematik.de/fhir/erp-t-prescription/StructureMap/ERPTPrescriptionStructureMapMedication"
+  ],
+  "structure": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/Bundle",
+      "mode": "source",
+      "alias": "bundle"
+    },
+    {
+      "url": "https://gematik.de/fhir/erp-t-prescription/StructureDefinition/erp-tprescription-carbon-copy",
+      "mode": "target",
+      "alias": "erpTCarbonCopy"
+    }
+  ],
+  "group": [
+    {
+      "input": [
+        {
+          "name": "bundle",
+          "type": "bundle",
+          "mode": "source"
+        },
+        {
+          "name": "erpTCarbonCopy",
+          "type": "erpTCarbonCopy",
+          "mode": "target"
+        }
+      ],
+      "rule": [
+        {
+          "source": [
+            {
+              "context": "bundle"
+            }
+          ],
+          "target": [
+            {
+              "contextType": "variable",
+              "context": "erpTCarbonCopy",
+              "element": "meta",
+              "variable": "erpTCarbonCopyMeta"
+            }
+          ],
+          "rule": [
+            {
+              "source": [
+                {
+                  "context": "bundle"
+                }
+              ],
+              "target": [
+                {
+                  "parameter": [
+                    {
+                      "valueString": "https://gematik.de/fhir/erp-t-prescription/StructureDefinition/erp-tprescription-carbon-copy|1.1"
+                    }
+                  ],
+                  "context": "erpTCarbonCopyMeta",
+                  "contextType": "variable",
+                  "element": "profile",
+                  "transform": "copy"
+                }
+              ],
+              "name": "tgtMetaProfile",
+              "documentation": "Setzt das meta.profile des digitalen Durchschlags T-Rezept"
+            }
+          ],
+          "name": "tgtMeta",
+          "documentation": "Setzt die Metadaten für den digitalen Durchschlag"
+        },
+        {
+          "source": [
+            {
+              "context": "bundle"
+            }
+          ],
+          "target": [
+            {
+              "contextType": "variable",
+              "context": "erpTCarbonCopy",
+              "element": "parameter",
+              "variable": "tgtRxPrescription"
+            },
+            {
+              "contextType": "variable",
+              "context": "tgtRxPrescription",
+              "element": "part",
+              "variable": "tgtRxPrescriptionPartId"
+            },
+            {
+              "contextType": "variable",
+              "context": "tgtRxPrescription",
+              "element": "part",
+              "variable": "tgtRxPrescriptionPartMR"
+            },
+            {
+              "contextType": "variable",
+              "context": "tgtRxPrescription",
+              "element": "part",
+              "variable": "tgtRxPrescriptionPartMed"
+            },
+            {
+              "parameter": [
+                {
+                  "valueString": "rxPrescription"
+                }
+              ],
+              "context": "tgtRxPrescription",
+              "contextType": "variable",
+              "element": "name",
+              "transform": "copy"
+            }
+          ],
+          "rule": [
+            {
+              "source": [
+                {
+                  "context": "bundle",
+                  "element": "entry",
+                  "variable": "srcEntryVar"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "srcEntryVar",
+                      "element": "resource",
+                      "variable": "srcEntryResourceVar"
+                    }
+                  ],
+                  "rule": [
+                    {
+                      "source": [
+                        {
+                          "context": "srcEntryResourceVar",
+                          "variable": "srcEntryTaskVar",
+                          "condition": "ofType(Task)"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "parameter": [
+                            {
+                              "valueString": "prescriptionId"
+                            }
+                          ],
+                          "context": "tgtRxPrescriptionPartId",
+                          "contextType": "variable",
+                          "element": "name",
+                          "transform": "copy"
+                        },
+                        {
+                          "parameter": [
+                            {
+                              "valueString": "Identifier"
+                            }
+                          ],
+                          "context": "tgtRxPrescriptionPartId",
+                          "contextType": "variable",
+                          "element": "value",
+                          "transform": "create",
+                          "variable": "newIdentifier"
+                        }
+                      ],
+                      "rule": [
+                        {
+                          "source": [
+                            {
+                              "context": "srcEntryTaskVar"
+                            }
+                          ],
+                          "dependent": [
+                            {
+                              "variable": [
+                                "srcEntryTaskVar",
+                                "newIdentifier"
+                              ],
+                              "name": "ERPTPrescriptionStructureMapTask"
+                            }
+                          ],
+                          "name": "parameterrXPrescriptionPartIdentifier",
+                          "documentation": "Mappt Task-Informationen auf Identifier für die Rezept-ID"
+                        }
+                      ],
+                      "name": "parameterrXPrescriptionPart",
+                      "documentation": "Extrahiert die E-Rezept-ID aus dem Task und erstellt den prescriptionId Parameter"
+                    },
+                    {
+                      "source": [
+                        {
+                          "context": "srcEntryResourceVar",
+                          "variable": "srcEntryBundleMRVar",
+                          "condition": "ofType(MedicationRequest)"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "parameter": [
+                            {
+                              "valueString": "medicationRequest"
+                            }
+                          ],
+                          "context": "tgtRxPrescriptionPartMR",
+                          "contextType": "variable",
+                          "element": "name",
+                          "transform": "copy"
+                        }
+                      ],
+                      "rule": [
+                        {
+                          "source": [
+                            {
+                              "context": "srcEntryBundleMRVar"
+                            }
+                          ],
+                          "target": [
+                            {
+                              "parameter": [
+                                {
+                                  "valueString": "MedicationRequest"
+                                }
+                              ],
+                              "context": "tgtRxPrescriptionPartMR",
+                              "contextType": "variable",
+                              "element": "resource",
+                              "transform": "create",
+                              "variable": "newMedicationRequest"
+                            }
+                          ],
+                          "rule": [
+                            {
+                              "source": [
+                                {
+                                  "context": "srcEntryBundleMRVar"
+                                }
+                              ],
+                              "dependent": [
+                                {
+                                  "variable": [
+                                    "srcEntryBundleMRVar",
+                                    "newMedicationRequest"
+                                  ],
+                                  "name": "ERPTPrescriptionStructureMapMedicationRequest"
+                                }
+                              ],
+                              "name": "entryMedicationRequestPartResourceSet",
+                              "documentation": "Führt die detaillierte MedicationRequest-Transformation durch"
+                            }
+                          ],
+                          "name": "entryMedicationRequestPart",
+                          "documentation": "Transformiert KBV-MedicationRequest in BfArM MedicationRequest Format"
+                        }
+                      ],
+                      "name": "entryMedicationRequest",
+                      "documentation": "Erstellt den medicationRequest Parameter für Verschreibungsdetails"
+                    },
+                    {
+                      "source": [
+                        {
+                          "context": "srcEntryVar",
+                          "variable": "srcMedicationRequestId",
+                          "condition": "resource.ofType(MedicationRequest)"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "parameter": [
+                            {
+                              "valueString": "medication"
+                            }
+                          ],
+                          "context": "tgtRxPrescriptionPartMed",
+                          "contextType": "variable",
+                          "element": "name",
+                          "transform": "copy"
+                        }
+                      ],
+                      "rule": [
+                        {
+                          "source": [
+                            {
+                              "context": "bundle",
+                              "element": "entry",
+                              "variable": "srcEntryVar2"
+                            }
+                          ],
+                          "rule": [
+                            {
+                              "source": [
+                                {
+                                  "context": "srcEntryVar2",
+                                  "variable": "srcEntryBundleMRMedIdVar",
+                                  "condition": "resource.ofType(Medication).where(id=%srcMedicationRequestId.resource.medicationReference.reference.replace('urn:uuid:', '').split('/').last())"
+                                }
+                              ],
+                              "target": [
+                                {
+                                  "parameter": [
+                                    {
+                                      "valueString": "Medication"
+                                    }
+                                  ],
+                                  "context": "tgtRxPrescriptionPartMed",
+                                  "contextType": "variable",
+                                  "element": "resource",
+                                  "transform": "create",
+                                  "variable": "newMedicationPrescriptionMedication"
+                                }
+                              ],
+                              "rule": [
+                                {
+                                  "source": [
+                                    {
+                                      "context": "srcEntryBundleMRMedIdVar",
+                                      "variable": "srcEntryBundleMRMedIdVarRes",
+                                      "element": "resource"
+                                    }
+                                  ],
+                                  "dependent": [
+                                    {
+                                      "variable": [
+                                        "srcEntryBundleMRMedIdVarRes",
+                                        "newMedicationPrescriptionMedication"
+                                      ],
+                                      "name": "ERPTPrescriptionStructureMapMedication"
+                                    }
+                                  ],
+                                  "name": "entryMedicationPrescriptionMedicationPartResourceSet",
+                                  "documentation": "Führt die detaillierte Medication-Transformation für das verschriebene Arzneimittel durch"
+                                }
+                              ],
+                              "name": "entryMedicationPrescriptionMedicationPart",
+                              "documentation": "Findet die vom MedicationRequest referenzierte Medication und transformiert sie in BfArM Format"
+                            }
+                          ],
+                          "name": "prepMedication",
+                          "documentation": "Bereitet die Suche nach der referenzierten Medication vor"
+                        }
+                      ],
+                      "name": "entryMedicationRequestMedication",
+                      "documentation": "Erstellt den medication Parameter für das verschriebene Arzneimittel"
+                    }
+                  ],
+                  "name": "rxPrescriptionParameter",
+                  "documentation": "Extrahiert relevante Ressourcen für die Verschreibung"
+                }
+              ],
+              "name": "bundleEntries",
+              "documentation": "Verarbeitet alle Einträge des Quell-Bundles für Verschreibungsinformationen"
+            }
+          ],
+          "name": "rxPrescriptionRule",
+          "documentation": "Erstellt den rxPrescription Parameter mit allen Verschreibungsinformationen"
+        },
+        {
+          "source": [
+            {
+              "context": "bundle"
+            }
+          ],
+          "target": [
+            {
+              "contextType": "variable",
+              "context": "erpTCarbonCopy",
+              "element": "parameter",
+              "variable": "tgtRxDispensation"
+            },
+            {
+              "contextType": "variable",
+              "context": "tgtRxDispensation",
+              "element": "part",
+              "variable": "tgtRxDispensationPartOrg"
+            },
+            {
+              "parameter": [
+                {
+                  "valueString": "rxDispensation"
+                }
+              ],
+              "context": "tgtRxDispensation",
+              "contextType": "variable",
+              "element": "name",
+              "transform": "copy"
+            }
+          ],
+          "rule": [
+            {
+              "source": [
+                {
+                  "context": "bundle",
+                  "element": "entry",
+                  "variable": "srcEntryVar"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "srcEntryVar",
+                      "element": "resource",
+                      "variable": "srcEntryResourceVar"
+                    }
+                  ],
+                  "rule": [
+                    {
+                      "source": [
+                        {
+                          "context": "srcEntryResourceVar",
+                          "variable": "srcEntryBundleOrgVar",
+                          "condition": "ofType(Bundle).where(entry.first().fullUrl.contains('fhir-directory'))"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "parameter": [
+                            {
+                              "valueString": "dispenseOrganization"
+                            }
+                          ],
+                          "context": "tgtRxDispensationPartOrg",
+                          "contextType": "variable",
+                          "element": "name",
+                          "transform": "copy"
+                        }
+                      ],
+                      "rule": [
+                        {
+                          "source": [
+                            {
+                              "context": "srcEntryBundleOrgVar"
+                            }
+                          ],
+                          "target": [
+                            {
+                              "parameter": [
+                                {
+                                  "valueString": "Organization"
+                                }
+                              ],
+                              "context": "tgtRxDispensationPartOrg",
+                              "contextType": "variable",
+                              "element": "resource",
+                              "transform": "create",
+                              "variable": "newOrganization"
+                            }
+                          ],
+                          "rule": [
+                            {
+                              "source": [
+                                {
+                                  "context": "srcEntryBundleOrgVar"
+                                }
+                              ],
+                              "dependent": [
+                                {
+                                  "variable": [
+                                    "srcEntryBundleOrgVar",
+                                    "newOrganization"
+                                  ],
+                                  "name": "ERPTPrescriptionStructureMapOrganization"
+                                }
+                              ],
+                              "name": "entryOrganizationPartResourceSet",
+                              "documentation": "Führt die detaillierte Organization-Transformation durch"
+                            }
+                          ],
+                          "name": "entryOrganizationPart",
+                          "documentation": "Transformiert VZD SearchSet in BfArM Organization Format für die abgebende Apotheke"
+                        }
+                      ],
+                      "name": "entryVZDSearchSet",
+                      "documentation": "Identifiziert VZD SearchSet Bundle für Apothekeninformationen"
+                    },
+                    {
+                      "source": [
+                        {
+                          "context": "srcEntryResourceVar",
+                          "variable": "srcEntryBundleMDVar",
+                          "condition": "ofType(MedicationDispense)"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "contextType": "variable",
+                          "context": "tgtRxDispensation",
+                          "element": "part",
+                          "variable": "tgtDispenseInformationPart"
+                        }
+                      ],
+                      "rule": [
+                        {
+                          "source": [
+                            {
+                              "context": "srcEntryBundleMDVar"
+                            }
+                          ],
+                          "target": [
+                            {
+                              "parameter": [
+                                {
+                                  "valueString": "dispenseInformation"
+                                }
+                              ],
+                              "context": "tgtDispenseInformationPart",
+                              "contextType": "variable",
+                              "element": "name",
+                              "transform": "copy"
+                            },
+                            {
+                              "contextType": "variable",
+                              "context": "tgtDispenseInformationPart",
+                              "element": "part",
+                              "variable": "tgtDispenseInformationMedDispPart"
+                            },
+                            {
+                              "contextType": "variable",
+                              "context": "tgtDispenseInformationPart",
+                              "element": "part",
+                              "variable": "tgtDispenseInformationMedicationPart"
+                            }
+                          ],
+                          "rule": [
+                            {
+                              "source": [
+                                {
+                                  "context": "srcEntryBundleMDVar"
+                                }
+                              ],
+                              "target": [
+                                {
+                                  "parameter": [
+                                    {
+                                      "valueString": "medicationDispense"
+                                    }
+                                  ],
+                                  "context": "tgtDispenseInformationMedDispPart",
+                                  "contextType": "variable",
+                                  "element": "name",
+                                  "transform": "copy"
+                                },
+                                {
+                                  "parameter": [
+                                    {
+                                      "valueString": "MedicationDispense"
+                                    }
+                                  ],
+                                  "context": "tgtDispenseInformationMedDispPart",
+                                  "contextType": "variable",
+                                  "element": "resource",
+                                  "transform": "create",
+                                  "variable": "newMedicationDispense"
+                                }
+                              ],
+                              "rule": [
+                                {
+                                  "source": [
+                                    {
+                                      "context": "srcEntryBundleMDVar"
+                                    }
+                                  ],
+                                  "dependent": [
+                                    {
+                                      "variable": [
+                                        "srcEntryBundleMDVar",
+                                        "newMedicationDispense"
+                                      ],
+                                      "name": "ERPTPrescriptionStructureMapMedicationDispense"
+                                    }
+                                  ],
+                                  "name": "entryMedicationDispensePartResourceSet",
+                                  "documentation": "Führt die detaillierte MedicationDispense-Transformation durch"
+                                }
+                              ],
+                              "name": "entryDispenseInformationMedicationDispense",
+                              "documentation": "Transformiert gematik MedicationDispense in BfArM MedicationDispense Format"
+                            },
+                            {
+                              "source": [
+                                {
+                                  "context": "srcEntryBundleMDVar"
+                                }
+                              ],
+                              "target": [
+                                {
+                                  "parameter": [
+                                    {
+                                      "valueString": "medication"
+                                    }
+                                  ],
+                                  "context": "tgtDispenseInformationMedicationPart",
+                                  "contextType": "variable",
+                                  "element": "name",
+                                  "transform": "copy"
+                                }
+                              ],
+                              "rule": [
+                                {
+                                  "source": [
+                                    {
+                                      "context": "bundle",
+                                      "element": "entry",
+                                      "variable": "srcEntryVarDisp"
+                                    }
+                                  ],
+                                  "rule": [
+                                    {
+                                      "source": [
+                                        {
+                                          "context": "srcEntryVarDisp",
+                                          "variable": "srcEntryBundleMDMedIdVar",
+                                          "condition": "resource.ofType(Medication).where(id=%srcEntryBundleMDVar.medicationReference.reference.replace('urn:uuid:', '').split('/').last())"
+                                        }
+                                      ],
+                                      "target": [
+                                        {
+                                          "parameter": [
+                                            {
+                                              "valueString": "Medication"
+                                            }
+                                          ],
+                                          "context": "tgtDispenseInformationMedicationPart",
+                                          "contextType": "variable",
+                                          "element": "resource",
+                                          "transform": "create",
+                                          "variable": "newMedicationDispensationMedication"
+                                        }
+                                      ],
+                                      "rule": [
+                                        {
+                                          "source": [
+                                            {
+                                              "context": "srcEntryBundleMDMedIdVar",
+                                              "variable": "srcEntryBundleMDMedIdVarRes",
+                                              "element": "resource"
+                                            }
+                                          ],
+                                          "dependent": [
+                                            {
+                                              "variable": [
+                                                "srcEntryBundleMDMedIdVarRes",
+                                                "newMedicationDispensationMedication"
+                                              ],
+                                              "name": "ERPTPrescriptionStructureMapMedication"
+                                            }
+                                          ],
+                                          "name": "entryMedicationDispensationMedicationPartResourceSet",
+                                          "documentation": "Führt die detaillierte Medication-Transformation für das abgegebene Arzneimittel durch"
+                                        }
+                                      ],
+                                      "name": "entryDispenseMedicationPart"
+                                    }
+                                  ],
+                                  "name": "prepDispenseMedication",
+                                  "documentation": "Bereitet die Suche nach der referenzierten Medication im Bundle vor"
+                                }
+                              ],
+                              "name": "entryDispenseInformationMedication",
+                              "documentation": "Findet die vom MedicationDispense referenzierte Medication und transformiert sie in BfArM Format"
+                            }
+                          ],
+                          "name": "entryDispenseInformation",
+                          "documentation": "Bündelt MedicationDispense und zugehörige Medication unter dispenseInformation"
+                        }
+                      ],
+                      "name": "entryMedicationDispense",
+                      "documentation": "Erstellt eine dispenseInformation Part pro abgegebener MedicationDispense"
+                    }
+                  ],
+                  "name": "rxDispensationParameter",
+                  "documentation": "Extrahiert relevante Ressourcen für die Abgabe"
+                }
+              ],
+              "name": "bundleEntries",
+              "documentation": "Verarbeitet alle Einträge des Quell-Bundles für Abgabeinformationen"
+            }
+          ],
+          "name": "MedicationDispenseFromBundle",
+          "documentation": "Erstellt den rxDispensation Parameter mit allen Abgabeinformationen"
+        }
+      ],
+      "name": "erpTPrescriptionCarbonCopy",
+      "typeMode": "none",
+      "documentation": "Mapping des digitalen Durchschlags T-Rezept aus einem E-Rezept Bundle in das BfArM CarbonCopy Format"
+    }
+  ],
+  "status": "active",
+  "version": "1.1.0",
+  "date": "2025-12-19",
+  "name": "ERPTPrescriptionStructureMapCarbonCopy",
+  "experimental": false
+}

@@ -1,0 +1,94 @@
+{
+  "resourceType": "StructureMap",
+  "id": "ERPTPrescriptionStructureMapTask",
+  "url": "https://gematik.de/fhir/erp-t-prescription/StructureMap/ERPTPrescriptionStructureMapTask",
+  "title": "E-T-Rezept Structure Map for Task",
+  "description": "Mappt die E-Rezept ID aus dem Task in ein Identifier Objekt",
+  "structure": [
+    {
+      "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task",
+      "mode": "source",
+      "alias": "task"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/Identifier",
+      "mode": "target",
+      "alias": "tgtIdentifier"
+    }
+  ],
+  "group": [
+    {
+      "input": [
+        {
+          "name": "task",
+          "type": "task",
+          "mode": "source"
+        },
+        {
+          "name": "tgtIdentifier",
+          "type": "tgtIdentifier",
+          "mode": "target"
+        }
+      ],
+      "rule": [
+        {
+          "source": [
+            {
+              "context": "task",
+              "element": "identifier",
+              "variable": "srcTaskIdentifier",
+              "condition": "$this.system='https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId'"
+            }
+          ],
+          "rule": [
+            {
+              "source": [
+                {
+                  "context": "srcTaskIdentifier",
+                  "element": "value",
+                  "variable": "srcTaskIdentifierValue",
+                  "logMessage": "tgtIdentifier"
+                }
+              ],
+              "target": [
+                {
+                  "parameter": [
+                    {
+                      "valueString": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId"
+                    }
+                  ],
+                  "context": "tgtIdentifier",
+                  "contextType": "variable",
+                  "element": "system",
+                  "transform": "copy"
+                },
+                {
+                  "parameter": [
+                    {
+                      "valueId": "srcTaskIdentifierValue"
+                    }
+                  ],
+                  "context": "tgtIdentifier",
+                  "contextType": "variable",
+                  "element": "value",
+                  "transform": "copy"
+                }
+              ],
+              "name": "prescriptionIdValue",
+              "documentation": "Mappt die E-Rezept-ID aus dem Task in den Identifier"
+            }
+          ],
+          "name": "prescriptionId"
+        }
+      ],
+      "name": "ERPTPrescriptionStructureMapTask",
+      "typeMode": "none",
+      "documentation": "Mapping Anweisungen für GEM_Task"
+    }
+  ],
+  "status": "active",
+  "version": "1.1.0",
+  "date": "2025-12-19",
+  "name": "ERPTPrescriptionStructureMapTask",
+  "experimental": false
+}

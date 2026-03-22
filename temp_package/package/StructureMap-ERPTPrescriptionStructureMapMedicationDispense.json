@@ -1,0 +1,297 @@
+{
+  "resourceType": "StructureMap",
+  "id": "ERPTPrescriptionStructureMapMedicationDispense",
+  "url": "https://gematik.de/fhir/erp-t-prescription/StructureMap/ERPTPrescriptionStructureMapMedicationDispense",
+  "title": "E-T-Rezept Structure Map for MedicationDispense",
+  "description": "Mapping-Anweisungen zur Transformation von gematik ERP MedicationDispense zu BfArM T-Prescription MedicationDispense",
+  "structure": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/MedicationDispense",
+      "mode": "source",
+      "alias": "gematikMedicationDispense"
+    },
+    {
+      "url": "https://gematik.de/fhir/erp-t-prescription/StructureDefinition/erp-tprescription-medication-dispense",
+      "mode": "target",
+      "alias": "bfarmMedicationDispense"
+    }
+  ],
+  "group": [
+    {
+      "input": [
+        {
+          "name": "gematikMedicationDispense",
+          "type": "gematikMedicationDispense",
+          "mode": "source"
+        },
+        {
+          "name": "bfarmMedicationDispense",
+          "type": "bfarmMedicationDispense",
+          "mode": "target"
+        }
+      ],
+      "rule": [
+        {
+          "source": [
+            {
+              "context": "gematikMedicationDispense",
+              "element": "extension",
+              "variable": "extDosageMetaVar",
+              "condition": "url='http://ig.fhir.de/igs/medication/StructureDefinition/GeneratedDosageInstructionsMeta'"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueId": "extDosageMetaVar"
+                }
+              ],
+              "context": "bfarmMedicationDispense",
+              "contextType": "variable",
+              "element": "extension",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationDispenseExt",
+          "documentation": "Kopiert Dosage Metadata Extension"
+        },
+        {
+          "source": [
+            {
+              "context": "gematikMedicationDispense",
+              "element": "extension",
+              "variable": "extDosageRenderedVar",
+              "condition": "url='http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationDispense.renderedDosageInstruction'"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueId": "extDosageRenderedVar"
+                }
+              ],
+              "context": "bfarmMedicationDispense",
+              "contextType": "variable",
+              "element": "extension",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationDispenseExt",
+          "documentation": "Kopiert RenderedDosageText"
+        },
+        {
+          "source": [
+            {
+              "context": "gematikMedicationDispense",
+              "element": "dosageInstruction",
+              "variable": "dosageInstructionVar"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueId": "dosageInstructionVar"
+                }
+              ],
+              "context": "bfarmMedicationDispense",
+              "contextType": "variable",
+              "element": "dosageInstruction",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationDispenseDosageInstruction",
+          "documentation": "Übernimmt die Dosierungsanweisungen aus der ursprünglichen Abgabe für den digitalen Durchschlag"
+        },
+        {
+          "source": [
+            {
+              "context": "gematikMedicationDispense",
+              "element": "whenHandedOver",
+              "variable": "whenHandedOverVar"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueId": "whenHandedOverVar"
+                }
+              ],
+              "context": "bfarmMedicationDispense",
+              "contextType": "variable",
+              "element": "whenHandedOver",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationDispenseWhenHandedOver",
+          "documentation": "Kopiert das Abgabedatum zur Dokumentation des Zeitpunkts der Medikamentenausgabe"
+        },
+        {
+          "source": [
+            {
+              "context": "gematikMedicationDispense",
+              "element": "medication",
+              "variable": "medicationVar"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueId": "medicationVar"
+                }
+              ],
+              "context": "bfarmMedicationDispense",
+              "contextType": "variable",
+              "element": "medication",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationReference",
+          "documentation": "Kopiert die Medikamentenreferenz - das referenzierte Medication wird separat gemappt"
+        },
+        {
+          "source": [
+            {
+              "context": "gematikMedicationDispense",
+              "element": "status",
+              "variable": "gematikMedicationDispenseStatus"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueString": "completed"
+                }
+              ],
+              "context": "bfarmMedicationDispense",
+              "contextType": "variable",
+              "element": "status",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationDispenseStatus",
+          "documentation": "Setzt den Status auf 'completed' da die Abgabe bereits erfolgt ist (digitaler Durchschlag)"
+        },
+        {
+          "source": [
+            {
+              "context": "gematikMedicationDispense",
+              "element": "quantity",
+              "variable": "quantityVar"
+            }
+          ],
+          "target": [
+            {
+              "parameter": [
+                {
+                  "valueId": "quantityVar"
+                }
+              ],
+              "context": "bfarmMedicationDispense",
+              "contextType": "variable",
+              "element": "quantity",
+              "transform": "copy"
+            }
+          ],
+          "name": "medicationDispenseQuantity",
+          "documentation": "Übernimmt die abgegebene Menge zur Dokumentation der tatsächlich ausgehändigten Medikamentenmenge"
+        },
+        {
+          "source": [
+            {
+              "context": "gematikMedicationDispense",
+              "element": "performer",
+              "variable": "srcPerformerVar"
+            }
+          ],
+          "target": [
+            {
+              "contextType": "variable",
+              "context": "bfarmMedicationDispense",
+              "element": "performer",
+              "variable": "tgtPerformerVar"
+            }
+          ],
+          "rule": [
+            {
+              "source": [
+                {
+                  "context": "srcPerformerVar",
+                  "element": "actor",
+                  "variable": "srcPerformerActorVar"
+                }
+              ],
+              "target": [
+                {
+                  "contextType": "variable",
+                  "context": "tgtPerformerVar",
+                  "element": "actor",
+                  "variable": "tgtPerformerActorVar"
+                }
+              ],
+              "rule": [
+                {
+                  "source": [
+                    {
+                      "context": "srcPerformerActorVar",
+                      "element": "identifier",
+                      "variable": "srcPerformerActorIdentifierVar"
+                    }
+                  ],
+                  "rule": [
+                    {
+                      "source": [
+                        {
+                          "context": "srcPerformerActorIdentifierVar",
+                          "element": "value",
+                          "variable": "srcPerformerActorIdentifierValueVar"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "parameter": [
+                            {
+                              "valueString": "Organization/"
+                            },
+                            {
+                              "valueId": "srcPerformerActorIdentifierValueVar"
+                            }
+                          ],
+                          "context": "tgtPerformerActorVar",
+                          "contextType": "variable",
+                          "element": "reference",
+                          "transform": "append"
+                        }
+                      ],
+                      "name": "medicationDispensePerformerActorIdentifierValue",
+                      "documentation": "Wandelt Apotheken-Identifier in Organization-Referenz um (Organization/<telematik-id>)"
+                    }
+                  ],
+                  "name": "medicationDispensePerformerActorIdentifier",
+                  "documentation": "Extrahiert den Identifier der abgebenden Apotheke"
+                }
+              ],
+              "name": "medicationDispensePerformerActor",
+              "documentation": "Verarbeitet den Actor (abgebende Apotheke) des Performers"
+            }
+          ],
+          "name": "medicationDispensePerformer",
+          "documentation": "Transformiert Apotheken-Identifier zu Organization-Referenz für eindeutige Zuordnung der abgebenden Apotheke"
+        }
+      ],
+      "name": "ERPTPrescriptionStructureMapMedicationDispense",
+      "typeMode": "none",
+      "documentation": "Mapping-Anweisungen zur Transformation von gematik ERP MedicationDispense zu BfArM T-Prescription MedicationDispense"
+    }
+  ],
+  "status": "active",
+  "version": "1.1.0",
+  "date": "2025-12-19",
+  "name": "ERPTPrescriptionStructureMapMedicationDispense",
+  "experimental": false
+}
