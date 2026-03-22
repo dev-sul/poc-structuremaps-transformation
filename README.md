@@ -1,4 +1,4 @@
-# FHIR Transformation (E-Rezept)
+# PoC StrutureMap Transformation 
 
 This project provides an in-memory API to transform e-prescription source resources using StructureMaps and compare the resulting content.
 
