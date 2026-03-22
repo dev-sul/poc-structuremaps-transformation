@@ -1,4 +1,4 @@
-# PoC StrutureMap Transformation 
+# PoC StructureMap Transformation 
 
 This project provides an in-memory API to transform e-prescription source resources using StructureMaps and compare the resulting content.
 
