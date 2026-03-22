@@ -64,11 +64,16 @@ internal object TestResourceSupport {
 
     @Throws(IOException::class)
     fun writeResource(resource: Resource, outputPath: Path) {
+        if (!isWriteArtifactsEnabled()) return
         outputPath.parent
             ?.takeIf(Path::notExists)
             ?.let(Files::createDirectories)
         Files.writeString(outputPath, jsonParser.composeString(resource), StandardCharsets.UTF_8)
     }
+
+    private fun isWriteArtifactsEnabled(): Boolean =
+        System.getProperty(WRITE_ARTIFACTS_PROPERTY)?.trim()?.equals("true", ignoreCase = true) ?: false ||
+            System.getenv(WRITE_ARTIFACTS_ENV)?.trim()?.equals("true", ignoreCase = true) ?: false
 
 }
 

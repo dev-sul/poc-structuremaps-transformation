@@ -16,7 +16,7 @@ object FhirEngineFactory {
         val sanitizedIgResourcePath = requireNonBlank(igResourcePath, "igResourcePath")
 
         return try {
-            ValidationEngine.ValidationEngineBuilder().fromSource(sanitizedCorePackage).apply {
+            ValidationEngine.ValidationEngineBuilder().withNoTerminologyServer().fromSource(sanitizedCorePackage).apply {
                 FhirEngineFactory::class.java.getResourceAsStream(sanitizedIgResourcePath).use { stream ->
                     requireNotNull(stream) { "IG package resource not found: $sanitizedIgResourcePath" }
                     igLoader.loadPackage(NpmPackage.fromPackage(stream), true)

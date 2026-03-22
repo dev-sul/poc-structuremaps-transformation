@@ -45,6 +45,9 @@ mvn test
 
 The Maven build is configured for Kotlin on JVM 17+ and has been verified in a Java-25-based environment.
 
+On first run, Maven downloads FHIR packages (e.g. `hl7.fhir.r4.core#4.0.1`) from the FHIR package registry
+(`packages.fhir.org`). Downloaded packages are cached in `~/.fhir/packages/` for subsequent offline use.
+
 With artifact output:
 
 ```bash
