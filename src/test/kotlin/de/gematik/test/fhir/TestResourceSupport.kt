@@ -63,30 +63,12 @@ internal object TestResourceSupport {
     fun buildArtifactPath(fileName: String): Path = buildDir.resolve(fileName)
 
     @Throws(IOException::class)
-    fun maybeWriteResource(resource: Resource, outputPath: Path) {
-        if (!shouldWriteArtifacts()) {
-            return
-        }
+    fun writeResource(resource: Resource, outputPath: Path) {
         outputPath.parent
             ?.takeIf(Path::notExists)
             ?.let(Files::createDirectories)
         Files.writeString(outputPath, jsonParser.composeString(resource), StandardCharsets.UTF_8)
     }
 
-    private fun shouldWriteArtifacts(): Boolean {
-        System.getProperty(WRITE_ARTIFACTS_PROPERTY)
-            ?.trim()
-            ?.takeIf(String::isNotEmpty)
-            ?.let(String::toBooleanStrictOrNull)
-            ?.let { return it }
-
-        System.getenv(WRITE_ARTIFACTS_ENV)
-            ?.trim()
-            ?.takeIf(String::isNotEmpty)
-            ?.let(String::toBooleanStrictOrNull)
-            ?.let { return it }
-
-        return System.getProperty(SUREFIRE_MARKER_PROPERTY) == null
-    }
 }
 

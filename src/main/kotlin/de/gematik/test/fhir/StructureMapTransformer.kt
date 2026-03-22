@@ -14,7 +14,7 @@ import java.io.ByteArrayOutputStream
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
 
-class StrukturedMapTransformer(
+class StructureMapTransformer(
     private val validationEngine: ValidationEngine,
     structureMapUrl: String
 ) {

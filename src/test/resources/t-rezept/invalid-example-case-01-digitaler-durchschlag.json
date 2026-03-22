@@ -17,7 +17,7 @@
           "name": "prescriptionId",
           "valueIdentifier": {
             "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
-            "value": "166.100.000.000.001.38"
+            "value": "166.100.000.000.001.39"
           }
         },
         {
@@ -28,27 +28,44 @@
               {
                 "extension": [
                   {
-                    "url": "Off-Label",
+                    "url": "off-label",
                     "valueBoolean": true
                   },
                   {
-                    "url": "GebaerfaehigeFrau",
+                    "url": "childbearing-potential",
                     "valueBoolean": false
                   },
                   {
-                    "url": "EinhaltungSicherheitsmassnahmen",
+                    "url": "security-compliance",
                     "valueBoolean": true
                   },
                   {
-                    "url": "AushaendigungInformationsmaterialien",
+                    "url": "hand-out-information-material",
                     "valueBoolean": true
                   },
                   {
-                    "url": "ErklaerungSachkenntnis",
-                    "valueBoolean": true
+                    "url": "declaration-of-expertise",
+                    "valueBoolean": false
                   }
                 ],
-                "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Teratogenic"
+                "url": "https://gematik.de/fhir/epa-medication/StructureDefinition/teratogenic-extension"
+              },
+              {
+                "extension": [
+                  {
+                    "url": "algorithmVersion",
+                    "valueString": "1.0.0"
+                  },
+                  {
+                    "url": "language",
+                    "valueCode": "de-DE"
+                  }
+                ],
+                "url": "http://ig.fhir.de/igs/medication/StructureDefinition/GeneratedDosageInstructionsMeta"
+              },
+              {
+                "url": "http://hl7.org/fhir/5.0/StructureDefinition/extension-MedicationRequest.renderedDosageInstruction",
+                "valueMarkdown": "0-0-1-0 Stück"
               }
             ],
             "status": "completed",
@@ -57,12 +74,24 @@
               "reference": "urn:uuid:a3ca01a4-92c1-422a-87d9-ef046e94527f"
             },
             "subject": {
-              "extension": [
-                {
-                  "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
-                  "valueCode": "not-permitted"
+              "identifier": {
+                "_system": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                      "valueCode": "not-permitted"
+                    }
+                  ]
+                },
+                "_value": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/data-absent-reason",
+                      "valueCode": "not-permitted"
+                    }
+                  ]
                 }
-              ]
+              }
             },
             "authoredOn": "2025-05-20",
             "dosageInstruction": [
