@@ -2,6 +2,8 @@
 
 This project provides an in-memory API to transform e-prescription source resources using StructureMaps and compare the resulting content.
 
+The implementation is written in Kotlin and built with Maven.
+
 ## API
 
 Package: `de.gematik.test.fhir`
@@ -21,7 +23,7 @@ Comparison rules (pragmatic):
 
 The JUnit tests are located in:
 
-- `src/test/java/de/gematik/test/fhir/TransformerTest.java`
+- `src/test/kotlin/de/gematik/test/fhir/TransformerTest.kt`
 
 Covered scenarios:
 
@@ -40,6 +42,8 @@ Optional artifact output (tests only):
 ```bash
 mvn test
 ```
+
+The Maven build is configured for Kotlin on JVM 17+ and has been verified in a Java-25-based environment.
 
 With artifact output:
 
