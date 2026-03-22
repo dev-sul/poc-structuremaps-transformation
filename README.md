@@ -4,7 +4,7 @@ This project provides an in-memory API to transform e-prescription source resour
 
 ## API
 
-Package: `de.gematik.test.erezept.fhir`
+Package: `de.gematik.test.fhir`
 
 - `new StrukturedMapTransformer(validationEngine, structureMapUrl)`
 - `StrukturedMapTransformer.transform(List<Resource>) -> Resource`
@@ -21,7 +21,7 @@ Comparison rules (pragmatic):
 
 The JUnit tests are located in:
 
-- `src/test/java/de/gematik/test/erezept/fhir/TransformerTest.java`
+- `src/test/java/de/gematik/test/fhir/TransformerTest.java`
 
 Covered scenarios:
 
