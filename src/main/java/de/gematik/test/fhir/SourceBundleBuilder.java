@@ -1,6 +1,5 @@
 package de.gematik.test.fhir;
 
-import lombok.val;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Parameters;
 import org.hl7.fhir.r4.model.Resource;
@@ -14,10 +13,10 @@ final class SourceBundleBuilder {
   Bundle build(List<Resource> sources) {
     Objects.requireNonNull(sources, "sources must not be null");
 
-    val bundle = new Bundle();
+    var bundle = new Bundle();
     bundle.setType(Bundle.BundleType.COLLECTION);
 
-    for (val source : sources) {
+    for (var source : sources) {
       if (source == null) {
         continue;
       }
@@ -28,31 +27,43 @@ final class SourceBundleBuilder {
   }
 
   private void appendResource(Bundle target, Resource source) {
-    if (source instanceof Bundle nestedBundle && nestedBundle.getType() == Bundle.BundleType.DOCUMENT) {
-      for (val entry : nestedBundle.getEntry()) {
-        if (entry.hasResource()) {
-          addAsEntry(target, entry.getResource(), entry.getFullUrl());
-        }
-      }
-      return;
-    }
-
-    if (source instanceof Parameters parameters) {
-      for (val parameter : parameters.getParameter()) {
-        for (val part : parameter.getPart()) {
-          if (part.hasResource()) {
-            addAsEntry(target, part.getResource(), null);
-          }
-        }
-      }
+    if (appendDocumentEntriesIfApplicable(target, source) || appendParameterEntriesIfApplicable(target, source)) {
       return;
     }
 
     addAsEntry(target, source, null);
   }
 
+  private boolean appendDocumentEntriesIfApplicable(Bundle target, Resource source) {
+    if (!(source instanceof Bundle nestedBundle) || nestedBundle.getType() != Bundle.BundleType.DOCUMENT) {
+      return false;
+    }
+
+    for (var entry : nestedBundle.getEntry()) {
+      if (entry.hasResource()) {
+        addAsEntry(target, entry.getResource(), entry.getFullUrl());
+      }
+    }
+    return true;
+  }
+
+  private boolean appendParameterEntriesIfApplicable(Bundle target, Resource source) {
+    if (!(source instanceof Parameters parameters)) {
+      return false;
+    }
+
+    for (var parameter : parameters.getParameter()) {
+      for (var part : parameter.getPart()) {
+        if (part.hasResource()) {
+          addAsEntry(target, part.getResource(), null);
+        }
+      }
+    }
+    return true;
+  }
+
   private void addAsEntry(Bundle target, Resource resource, String fullUrl) {
-    val entry = target.addEntry();
+    var entry = target.addEntry();
     entry.setResource(resource);
 
     if (fullUrl != null && !fullUrl.isBlank()) {

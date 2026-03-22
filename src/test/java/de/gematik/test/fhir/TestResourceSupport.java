@@ -1,6 +1,5 @@
 package de.gematik.test.fhir;
 
-import lombok.val;
 import org.hl7.fhir.r4.formats.JsonParser;
 import org.hl7.fhir.r4.formats.XmlParser;
 import org.hl7.fhir.r4.model.Resource;
@@ -9,7 +8,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -31,19 +29,18 @@ final class TestResourceSupport {
   }
 
   static List<Resource> loadFourSourceResources(Path baseDir) throws IOException {
-    val sources = new ArrayList<Resource>();
-    try (val paths = Files.walk(baseDir)) {
-      paths
+    try (var paths = Files.walk(baseDir)) {
+      return paths
           .filter(Files::isRegularFile)
           .filter(TestResourceSupport::isXmlOrJsonFile)
           .sorted(Comparator.comparing(Path::toString))
-          .forEach(path -> sources.add(readResource(path)));
+          .map(TestResourceSupport::readResource)
+          .toList();
     }
-    return sources;
   }
 
   private static boolean isXmlOrJsonFile(Path path) {
-    val fileName = path.getFileName().toString().toLowerCase(Locale.ROOT);
+    var fileName = path.getFileName().toString().toLowerCase(Locale.ROOT);
     return fileName.endsWith(".xml") || fileName.endsWith(".json");
   }
 

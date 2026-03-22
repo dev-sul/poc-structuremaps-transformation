@@ -1,6 +1,5 @@
 package de.gematik.test.fhir;
 
-import lombok.val;
 import org.hl7.fhir.r5.model.OperationOutcome;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,23 +16,23 @@ class TransformerTest {
 
   @Test
   void transformFromXmlSourcesAndCompareToExpected() throws Exception {
-    val transformer = new StrukturedMapTransformer(FhirEngineFactory.createDefault(), CARBON_COPY_STRUCTURE_MAP);
-    val comparator = new ResourceComparator();
+    var transformer = new StrukturedMapTransformer(FhirEngineFactory.createDefault(), CARBON_COPY_STRUCTURE_MAP);
+    var comparator = new ResourceComparator();
 
-    val sources = TestResourceSupport.loadFourSourceResources(SOURCE_DIR);
-    val transformed = transformer.transform(sources);
+    var sources = TestResourceSupport.loadFourSourceResources(SOURCE_DIR);
+    var transformed = transformer.transform(sources);
 
     Assertions.assertNotNull(transformed, "Transform result must not be null");
     Assertions.assertEquals("Parameters", transformed.fhirType(), "Expected Parameters output resource");
 
-    val outcome = transformer.validate(transformed);
-    val fatals = outcome.getIssue().stream()
+    var outcome = transformer.validate(transformed);
+    var fatals = outcome.getIssue().stream()
         .filter(issue -> issue.getSeverity() == OperationOutcome.IssueSeverity.FATAL)
         .count();
     Assertions.assertEquals(0, fatals, "FHIR validation returned fatal issues: " + outcome.getIssue());
 
-    val expected = TestResourceSupport.readJsonResource(BASE_DIR.resolve("example-case-01-digitaler-durchschlag.json"));
-    val diff = comparator.compare(transformed, expected);
+    var expected = TestResourceSupport.readJsonResource(BASE_DIR.resolve("example-case-01-digitaler-durchschlag.json"));
+    var diff = comparator.compare(transformed, expected);
 
     TestResourceSupport.maybeWriteResource(transformed, Path.of("target", "transform-result.json"));
 
@@ -45,19 +44,19 @@ class TransformerTest {
 
   @Test
   void transformFromNestedSourceDirectory() throws Exception {
-    val transformer = new StrukturedMapTransformer(FhirEngineFactory.createDefault(), CARBON_COPY_STRUCTURE_MAP);
+    var transformer = new StrukturedMapTransformer(FhirEngineFactory.createDefault(), CARBON_COPY_STRUCTURE_MAP);
 
     Assertions.assertTrue(Files.isDirectory(SOURCE_DIR), "Expected source directory with XML/JSON examples");
 
-    val sources = TestResourceSupport.loadFourSourceResources(SOURCE_DIR);
+    var sources = TestResourceSupport.loadFourSourceResources(SOURCE_DIR);
     Assertions.assertEquals(4, sources.size(), "Expected exactly four source resources in t-rezept/source");
 
-    val transformed = transformer.transform(sources);
+    var transformed = transformer.transform(sources);
     Assertions.assertNotNull(transformed, "Transform result from source directory must not be null");
     Assertions.assertEquals("Parameters", transformed.fhirType(), "Expected Parameters output resource");
 
-    val outcome = transformer.validate(transformed);
-    val fatals = outcome.getIssue().stream()
+    var outcome = transformer.validate(transformed);
+    var fatals = outcome.getIssue().stream()
         .filter(issue -> issue.getSeverity() == OperationOutcome.IssueSeverity.FATAL)
         .count();
     Assertions.assertEquals(0, fatals, "FHIR validation returned fatal issues: " + outcome.getIssue());
@@ -65,7 +64,7 @@ class TransformerTest {
 
   @Test
   void rejectsBlankStructureMapUrl() {
-    val exception = Assertions.assertThrows(
+    var exception = Assertions.assertThrows(
         IllegalArgumentException.class,
         () -> new StrukturedMapTransformer(FhirEngineFactory.createDefault(), "   ")
     );

@@ -1,10 +1,7 @@
 package de.gematik.test.fhir;
 
-import lombok.val;
 import org.hl7.fhir.utilities.npm.NpmPackage;
 import org.hl7.fhir.validation.ValidationEngine;
-
-import java.util.Objects;
 
 public final class FhirEngineFactory {
 
@@ -18,22 +15,30 @@ public final class FhirEngineFactory {
   }
 
   public static ValidationEngine createWithIgs(String corePackage, String igResourcePath) {
-    Objects.requireNonNull(corePackage, "corePackage must not be null");
-    Objects.requireNonNull(igResourcePath, "igResourcePath must not be null");
+    corePackage = requireNonBlank(corePackage, "corePackage");
+    igResourcePath = requireNonBlank(igResourcePath, "igResourcePath");
 
     try {
-      val engine = new ValidationEngine.ValidationEngineBuilder().fromSource(corePackage);
+      var engine = new ValidationEngine.ValidationEngineBuilder().fromSource(corePackage);
       try (var stream = FhirEngineFactory.class.getResourceAsStream(igResourcePath)) {
         if (stream == null) {
           throw new IllegalArgumentException("IG package resource not found: " + igResourcePath);
         }
-        val npmPackage = NpmPackage.fromPackage(stream);
+        var npmPackage = NpmPackage.fromPackage(stream);
         engine.getIgLoader().loadPackage(npmPackage, true);
       }
       return engine;
     } catch (Exception e) {
       throw new IllegalStateException("Unable to initialize ValidationEngine", e);
     }
+  }
+
+  private static String requireNonBlank(String value, String name) {
+    var sanitized = java.util.Objects.requireNonNull(value, name + " must not be null").strip();
+    if (sanitized.isEmpty()) {
+      throw new IllegalArgumentException(name + " must not be blank");
+    }
+    return sanitized;
   }
 }
 
